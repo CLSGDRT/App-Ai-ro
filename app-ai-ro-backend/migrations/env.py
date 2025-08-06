@@ -6,7 +6,9 @@ import os
 import sys
 
 # Ajouter le chemin du projet pour importer correctement
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import get_config
 
 # Import de db
 from models.db import db
@@ -26,6 +28,9 @@ if config.config_file_name is not None:
 
 # Cible de migration
 target_metadata = db.metadata
+
+flask_config = get_config()
+config.set_main_option('sqlalchemy.url', flask_config.SQLALCHEMY_DATABASE_URI)
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode."""
@@ -52,7 +57,7 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            compare_type=True  # Utile si tu veux suivre les changements de types de colonne
+            compare_type=True 
         )
 
         with context.begin_transaction():
