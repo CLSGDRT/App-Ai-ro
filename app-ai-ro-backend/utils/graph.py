@@ -3,16 +3,13 @@ from pydantic import BaseModel
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import StateGraph, END
 import json
+from typing import List
 from models.music_style import MusicStyle
 from models.cocktail import Cocktail
 from models.recipe import Recipe
 from models.ingredient import Ingredient
 from models.db import db
 import uuid
-from diffusers import DiffusionPipeline
-import torch
-
-model_name = "CompVis/stable-diffusion-v1-4"
 
 llm = ChatOllama(model="llama3.1")
 
@@ -21,7 +18,7 @@ class ApairoState(BaseModel):
     is_cocktail: bool = False
     cocktail_name: str = None
     description: str = None
-    ingredients: list[str] = None
+    ingredients: List[str] = None
     music_style: str = None
     reply: str = None
     
@@ -57,7 +54,7 @@ client_prompt = PromptTemplate.from_template(
         - Un cocktail sans alcool pour une après-midi en terrasse
         - Une création originale à base de whisky et citron vert
         - Je suis de bonne humeur et il fait beau aujourd'hui, tu me conseilles de boire quoi ?
-        Tu dois répondre suivant plusieurs champs :
+        Tu dois répondre suivant plusieurs champs obligatoires :
         - `cocktail_name` qui est le nom du cocktail (string)
         - `description` qui est la description ou l'histoire du cocktail (string de 20 mots maximum)
         - `ingredients` qui est une liste d'ingrédients en JSON, par exemple ["gin", "citron", "sucre"]
@@ -135,6 +132,7 @@ acknowledge_prompt = PromptTemplate.from_template(
     """
         Tu dois répondre `a l'utilisateur pour lui proposer le cocktail.
         Tu dois répondre d'une façon sympathique et adaptée au cocktail présenté.
+        Tu dois inclure un jeu de mot dans ta réponse.
 
         Cocktail proposé :
             Nom : {cocktail_name}
@@ -167,41 +165,27 @@ def acknowledge_cocktail_creation(state: ApairoState) -> ApairoState:
 
 
 
-def imagine_cocktail(state: ApairoState) -> ApairoState:
-    torch_dtype = torch.float32
-    device = "mps"
-    pipe = DiffusionPipeline.from_pretrained(model_name, torch_dtype=torch_dtype)
-    pipe = pipe.to(device)
+# def imagine_cocktail(state: ApairoState) -> ApairoState:
     
-    def generate_image_prompt(cocktail_name = state.cocktail_name, description = state.description):
-        return f"un cocktail du nom de : {cocktail_name}, ayant pour description : {description}"
+#     def generate_image_prompt(cocktail_name = state.cocktail_name, description = state.description):
+#         return f"un cocktail du nom de : {cocktail_name}, ayant pour description : {description}"
     
-    imagine_prompt = generate_image_prompt()
-    
-    aspect_ratios = {
-        "1:1": (1328, 1328),
-        "16:9": (1664, 928),
-        "9:16": (928, 1664),
-        "4:3": (1472, 1140),
-        "3:4": (1140, 1472),
-        "3:2": (1584, 1056),
-        "2:3": (1056, 1584),
-    }
+#     imagine_prompt = generate_image_prompt()
 
-    width, height = aspect_ratios["2:3"]
-    negative_prompt = " " 
+#     width, height = 512, 512
+#     negative_prompt = " " 
 
-    image = pipe(
-        prompt=imagine_prompt,
-        negative_prompt=negative_prompt,
-        width=width,
-        height=height,
-        num_inference_steps=50,
-        true_cfg_scale=4.0,
-        generator=torch.Generator(device="mps").manual_seed(42)
-    ).images[0]
+#     image = pipe(
+#         prompt=imagine_prompt,
+#         negative_prompt=negative_prompt,
+#         width=width,
+#         height=height,
+#         num_inference_steps=50,
+#         true_cfg_scale=4.0,
+#         generator=torch.Generator(device="mps").manual_seed(42)
+#     ).images[0]
     
-    image.save("cocktail.png")
+#     image.save("cocktail.png")
 
 response_prompt = PromptTemplate.from_template("""
 Tu dois répondre à l'utilisateur en t'appuyant sur test connaissance générales. 
@@ -225,8 +209,11 @@ def parse_ingredient_list(ingredients_field) -> list[str]:
     - Si c'est une string JSON : on utilise json.loads
     - Si c'est une string CSV : on split
     """
+    
     if isinstance(ingredients_field, list):
         return [i.strip().lower() for i in ingredients_field if i.strip()]
+    if not ingredients_field:
+        return []
     
     try:
         parsed = json.loads(ingredients_field)
@@ -245,7 +232,7 @@ graph.add_node("detect_cocktail_intent",detect_cocktail_intent)
 graph.add_node("create_cocktail", create_cocktail)
 graph.add_node("persist_cocktail", persist_cocktail)
 graph.add_node("acknowledge_cocktail_creation", acknowledge_cocktail_creation)
-graph.add_node("imagine_cocktail", imagine_cocktail)
+# graph.add_node("imagine_cocktail", imagine_cocktail)
 
 graph.add_node("response_to_client", response_to_client)
 
