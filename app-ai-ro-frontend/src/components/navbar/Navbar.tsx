@@ -22,7 +22,7 @@ export default function Navbar() {
                     <Link to="/">
                         <img
                         alt=""
-                        src="/src/assets/logo-appairo.png"
+                        src="/assets/logo-appairo.png"
                         className="max-h-12 sm:max-h-16 md:max-h-20 w-auto border border-green-500 rounded-tl-xl rounded-br-xl"
                         />
                     </Link>

@@ -1,36 +1,64 @@
-
+version: '3.8'
 
 services:
   redis:
-    image: redis:7-alpine
-    restart: always
+    image: redis:latest
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
 
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: app-ai-ro-backend
-    restart: always
+      dockerfile: Dockerfile.backend
     ports:
-      - "5001:5001"
+      - "5001:5001"    # Flask API
+      - "11411:11411"  # Ollama Serve
     environment:
-      - FLASK_ENV=development
-      - RQ_REDIS_URL=redis://redis:6379/0
+      - FLASK_APP=api.app
+      - FLASK_ENV=prod
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL_PROD=sqlite:///database/appairo.db
+      - OLLAMA_PORT=11411
+    command: >
+      /bin/sh -c "alembic upgrade head &&
+                  ollama serve --port 11411 &
+                  python api/app.py"
+    volumes:
+      - ./app-ai-ro-backend:/app
     depends_on:
       - redis
 
-  rq_worker:
+  rq-worker:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: app-ai-ro-rq-worker
-    restart: always
-    command: rq worker default
+      dockerfile: Dockerfile.backend
     environment:
-      - RQ_REDIS_URL=redis://redis:6379/0
-      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - FLASK_APP=api.app
+    command: rq worker
     depends_on:
       - redis
       - backend
+
+  image-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.image
+    ports:
+      - "5004:5004"
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  redis-data:

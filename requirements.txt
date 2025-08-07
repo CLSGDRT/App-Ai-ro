@@ -18,9 +18,10 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 dataclasses-json==0.6.7
-diffusers @ git+https://github.com/huggingface/diffusers@1082c46afa4a15c49833d67c7f1c0f3cfd7b0570
+diffusers
 filelock==3.18.0
 Flask==3.1.1
+flask-cors==6.0.1
 Flask-RQ==0.3.3
 Flask-SQLAlchemy==3.1.1
 frozenlist==1.7.0
