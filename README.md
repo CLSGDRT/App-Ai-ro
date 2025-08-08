@@ -126,6 +126,8 @@ app-AI-ro est une application web fullstack permettant de découvrir et génére
 * Les images sont générées et stockées côté backend via des tâches asynchrones (RQ).
 * J'ai réalisé en parallèle un micro service qui gère la partie génération d'image pour contourner les limitations qu'impose une machine type macbook et Flask.
 * Le contenu généré peut comporter des erreurs, vérifier toujours les données importantes.
+* Bug possible constaté sur la génération de cocktail avec des champs vide, gestion des cas non pris en compte actuellement.
+* Les modèles tournant localement il est conseillé d'avoir une machine capable de supporter ces derniers.
 
 ---
 
