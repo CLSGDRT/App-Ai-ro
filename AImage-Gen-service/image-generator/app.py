@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, request, jsonify, send_file
 from generate_image import generate_image
 import tempfile
@@ -17,7 +15,6 @@ def generate():
 
     image = generate_image(prompt)
 
-    # Sauvegarde temporaire
     tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     image.save(tmp_file.name)
     tmp_file.close()

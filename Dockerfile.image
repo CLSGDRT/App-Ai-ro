@@ -1,12 +1,22 @@
 FROM python:3.11-slim
 
+# Dépendances
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
+# Dépendances Python
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Code du microservice - CORRECTION ICI
 COPY AImage-Gen-service/image-generator/ /app/
 
-EXPOSE 5001
+# Script d'init diffusers
+COPY init_diffusers.py /init_diffusers.py
 
-CMD ["python", "app.py"]
+EXPOSE 5004
+
+CMD ["/bin/sh", "-c", "python /init_diffusers.py && python app.py"]

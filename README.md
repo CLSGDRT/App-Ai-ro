@@ -45,7 +45,7 @@ app-AI-ro est une application web fullstack permettant de découvrir et génére
 
 ---
 
-## Installation & démarrage
+## Installation & démarrage en local ou sur VM
 
 ### Prérequis
 
@@ -74,10 +74,11 @@ app-AI-ro est une application web fullstack permettant de découvrir et génére
 
    export FLASK_APP=app.py
    flask run
+   alembic upgrade head
 
 5. Démarrer le worker RQ dans un autre terminal :
 
-   flask rq worker
+   rq worker
 
 
 ### Frontend
@@ -92,6 +93,20 @@ app-AI-ro est une application web fullstack permettant de découvrir et génére
    npm run dev
 
 3. Accéder à l’application via `http://localhost:5173` (ou autre port affiché)
+
+## Installation & démarrage via Docker
+
+### Prérequis
+
+- Docker
+
+### Applications complète
+
+1. Créer et monter l'image sur Docker :
+
+   docker compose up --build -d
+
+2. Accéder à l'application via `http://<ip du conteneur>:5173`
 
 ---
 

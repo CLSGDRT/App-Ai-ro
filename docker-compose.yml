@@ -7,28 +7,34 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "5001:5001"    # Flask API
-      - "11411:11411"  # Ollama Serve
+      - "5001:5001"
+      - "11434:11434" # Port Ollama
     environment:
       - FLASK_APP=api.app
       - FLASK_ENV=prod
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL_PROD=sqlite:///database/appairo.db
-      - OLLAMA_PORT=11411
-    command: >
-      /bin/sh -c "alembic upgrade head &&
-                  ollama serve --port 11411 &
-                  python api/app.py"
+      - DATABASE_URL_PROD=sqlite:////app/database/appairo.db
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_PORT=11434
     volumes:
       - ./app-ai-ro-backend:/app
+      - backend-ollama-models:/root/.ollama
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   rq-worker:
     build:
@@ -37,10 +43,18 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - FLASK_APP=api.app
-    command: rq worker
+      - OLLAMA_BASE_URL=http://backend:11434
+    command: >
+      /bin/sh -c "sleep 30 && cd /app && python rq_worker.py"
     depends_on:
-      - redis
-      - backend
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    volumes:
+      - ./app-ai-ro-backend:/app
+      - backend-ollama-models:/root/.ollama
+    restart: unless-stopped
 
   image-service:
     build:
@@ -48,8 +62,13 @@ services:
       dockerfile: Dockerfile.image
     ports:
       - "5004:5004"
+    environment:
+      - FLASK_APP=app
+    volumes:
+      - diffusers-models:/root/.cache/huggingface
     depends_on:
       - redis
+    restart: unless-stopped
 
   frontend:
     build:
@@ -59,6 +78,9 @@ services:
       - "5173:80"
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   redis-data:
+  backend-ollama-models:
+  diffusers-models:

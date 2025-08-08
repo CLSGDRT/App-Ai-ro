@@ -44,12 +44,6 @@ export default function HeroSection() {
                 >
                 C'est parti !
             </Link>
-{/* 
-            <div className="text-sm/6 font-semibold text-gray-900">
-              <Link to="/glass">
-                Les cocktails 
-              </Link>
-            </div> */}
           </div>
         </div>
       </div>

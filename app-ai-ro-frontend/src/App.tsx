@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-// import Home from './components/home/Home'
 import Navbar from './components/navbar/Navbar'
 import Mixer from './components/mixer/Mixer'
 import Glass from './components/glass/Glass'
@@ -22,14 +21,6 @@ function App() {
             <Route path="/glass/:cocktailId" element={<GlassDesc/>} />
           </Route>
 
-          {/* Routes additionnelles */}
-          {/* <Route path="/product" element={<Product />} /> */}
-          {/* <Route path="/features" element={<Features />} /> */}
-          {/* <Route path="/marketplace" element={<Marketplace />} /> */}
-          {/* <Route path="/company" element={<Company />} /> */}
-          {/* <Route path="/login" element={<Login />} /> */}
-          
-          {/* Route 404 */}
           <Route path="*" element={<Quatre />} />
         </Routes>
       </div>

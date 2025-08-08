@@ -1,20 +1,33 @@
 FROM python:3.11-slim
 
+# Dépendances système
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    build-essential \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation Ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
 WORKDIR /app
 
+# Python deps
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Code backend
 COPY app-ai-ro-backend/ /app/
 
-# Copier le binaire ollama (ou installer si besoin)
-# Adapte le chemin selon ta structure
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Scripts
+COPY init_ollama.sh /init_ollama.sh
+COPY start.sh /start.sh
+RUN chmod +x /init_ollama.sh /start.sh
 
+# Exposer les ports
 EXPOSE 5001
+EXPOSE 11434
 
-# Copier script de démarrage qui lance ollama serve + flask
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-CMD ["/app/start.sh"]
+# Utiliser le script start.sh qui gère Ollama + Flask
+CMD ["/start.sh"]

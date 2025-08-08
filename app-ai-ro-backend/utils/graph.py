@@ -164,6 +164,7 @@ def acknowledge_cocktail_creation(state: ApairoState) -> ApairoState:
     return state
 
 
+# OBLIGATION DE PRÉVOIR DE L'ASYNC suite à des timeouts
 
 # def imagine_cocktail(state: ApairoState) -> ApairoState:
     
@@ -220,9 +221,8 @@ def parse_ingredient_list(ingredients_field) -> list[str]:
         if isinstance(parsed, list):
             return [i.strip().lower() for i in parsed if isinstance(i, str) and i.strip()]
     except Exception:
-        pass  # Pas un JSON valide
+        pass
 
-    # Dernier recours : split CSV
     return [i.strip().lower() for i in ingredients_field.split(",") if i.strip()]
 
 
@@ -246,4 +246,4 @@ graph.add_edge("acknowledge_cocktail_creation", END)
 graph.add_edge("response_to_client", END)
 
 assistant_graph = graph.compile()
-# assistant_graph.get_graph().draw_mermaid_png(output_file_path="assistant_graph.png")
+# assistant_graph.get_graph().draw_mermaid_png(output_file_path="assistant_graph.png"). PEU CONCLUANT

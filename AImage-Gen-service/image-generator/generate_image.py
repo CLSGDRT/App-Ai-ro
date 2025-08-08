@@ -1,5 +1,3 @@
-# generate_image.py
-
 import torch
 from diffusers import DiffusionPipeline
 

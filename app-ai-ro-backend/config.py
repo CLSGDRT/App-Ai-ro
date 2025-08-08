@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-# Charge automatiquement le fichier .env situé à la racine du projet (où est config.py)
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 

@@ -19,14 +19,14 @@ const Mixer: React.FC = () => {
 
   // Nouveaux états pour le timer et l'affichage image
   const [showImage, setShowImage] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(120);
   const timerRef = useRef<number | null>(null);
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     setShowImage(false);
-    setCountdown(30);
+    setCountdown(120);
 
     try {
       const response = await axios.post<CocktailResponse>(
