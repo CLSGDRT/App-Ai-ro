@@ -1,6 +1,3 @@
-Voici un exemple de `README.md` clair et complet pour expliquer le fonctionnement de ton application React + Flask, avec les points essentiels :
-
-````markdown
 # app-AI-ro
 
 app-AI-ro est une application web fullstack permettant de découvrir et générer des cocktails originaux à partir d’un message utilisateur, avec une interface moderne en React et un backend Flask.
